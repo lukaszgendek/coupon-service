@@ -6,7 +6,6 @@ CREATE TABLE coupon (
     used_count INT         NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT uq_coupon_code UNIQUE (code),
-    CONSTRAINT ck_coupon_code_upper CHECK (code = upper(code)),
     CONSTRAINT ck_coupon_max_uses CHECK (max_uses > 0),
     CONSTRAINT ck_coupon_used_count CHECK (used_count >= 0 AND used_count <= max_uses)
 );
