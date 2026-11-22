@@ -18,6 +18,10 @@ docker compose up -d postgres
 
 The compose file is also compatible with Podman (`podman-compose up -d --build`).
 
+Health: `GET /actuator/health` returns `UP` once the application started and the database is reachable (the only
+actuator endpoint exposed). The image has a `HEALTHCHECK` on it, so `docker compose up -d --build --wait` returns when
+the application is ready.
+
 Settings can be overridden with environment variables: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_POOL_SIZE`,
 `GEO_BASE_URL`.
 

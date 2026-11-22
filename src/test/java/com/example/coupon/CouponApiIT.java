@@ -34,6 +34,11 @@ class CouponApiIT {
 	GeoLocationPort geo;
 
 	@Test
+	void healthIsUpWhenTheDatabaseIsReachable() throws Exception {
+		mvc.perform(get("/actuator/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("UP"));
+	}
+
+	@Test
 	void fullCouponLifecycle() throws Exception {
 		given(geo.countryOf("203.0.113.7")).willReturn(Optional.of(CountryCode.of("PL")));
 		given(geo.countryOf("198.51.100.9")).willReturn(Optional.of(CountryCode.of("DE")));
