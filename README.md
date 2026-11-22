@@ -6,9 +6,18 @@ Java 21, Spring Boot 4, PostgreSQL, Flyway, Gradle.
 ## Run
 
 ```
-docker compose up -d          # PostgreSQL on localhost:5432 (user/password/db: coupons)
+./gradlew bootJar
+docker compose up -d --build   # PostgreSQL (localhost:5432) + the application (localhost:8080)
+```
+
+Or only the database, with the application run from Gradle:
+
+```
+docker compose up -d postgres
 ./gradlew bootRun
 ```
+
+The compose file is also compatible with Podman (`podman-compose up -d --build`).
 
 Settings can be overridden with environment variables: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_POOL_SIZE`,
 `GEO_BASE_URL`.
