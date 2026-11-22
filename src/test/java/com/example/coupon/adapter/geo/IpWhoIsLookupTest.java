@@ -1,6 +1,8 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
 
+import com.example.coupon.domain.CountryCode;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

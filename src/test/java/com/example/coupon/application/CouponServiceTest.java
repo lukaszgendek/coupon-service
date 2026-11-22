@@ -1,13 +1,17 @@
-package com.example.coupon;
+package com.example.coupon.application;
 
 import java.time.Instant;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
+import com.example.coupon.domain.CouponException;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

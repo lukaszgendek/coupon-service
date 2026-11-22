@@ -2,7 +2,10 @@ package com.example.coupon;
 
 import java.util.Optional;
 
+import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.domain.CountryCode;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

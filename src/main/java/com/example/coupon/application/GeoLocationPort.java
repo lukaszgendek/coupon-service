@@ -1,6 +1,8 @@
-package com.example.coupon;
+package com.example.coupon.application;
 
 import java.util.Optional;
+
+import com.example.coupon.domain.CountryCode;
 
 public interface GeoLocationPort {
 

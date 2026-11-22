@@ -83,9 +83,16 @@ exhausted coupon is therefore reported before a country mismatch, which also sav
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
 
-**Geolocation** is behind a port (`GeoLocationPort`). The adapter calls ipwho.is with 2 s timeouts and caches successful
-answers for 10 minutes. Failures are not cached. If the country cannot be determined the request is rejected (fail
-closed). The cache is not a loading cache, so no lock is held while waiting for the network.
+**Geolocation** is behind a port (`GeoLocationPort`). `ResilientGeoLocation` adds what every provider needs: a cache of
+successful answers (10 minutes, failures are not cached), single-flight (concurrent requests for one address share one
+lookup, waiting on a future rather than a lock), lookups on virtual threads, and a Resilience4j circuit breaker that
+fails fast while the provider is down. A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s
+timeouts), selected with `coupon.geo.provider`. If the country cannot be determined the request is rejected (fail
+closed).
+
+**Packages** follow ports and adapters: `domain` (values, exceptions), `application` (`CouponService` and the ports),
+`adapter.web`, `adapter.persistence`, `adapter.geo`. `ArchitectureTest` fails the build if a dependency points the
+wrong way.
 
 **Virtual threads** are enabled so that requests waiting for the geolocation service or the database do not occupy
 platform threads. The connection pool (20, 2 s timeout) is then the bounded resource: under overload the service

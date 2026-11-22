@@ -1,4 +1,6 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
+
+import com.example.coupon.domain.CountryCode;
 
 /**
  * Asks one geolocation provider for the country of an address. Implementations know the provider's protocol and

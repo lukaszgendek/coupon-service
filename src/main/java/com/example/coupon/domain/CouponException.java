@@ -1,4 +1,6 @@
-package com.example.coupon;
+package com.example.coupon.domain;
+
+
 
 /** Business failure of a coupon operation. Unchecked, so it also rolls back the surrounding transaction. */
 public abstract sealed class CouponException extends RuntimeException {

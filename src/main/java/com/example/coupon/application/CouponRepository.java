@@ -1,6 +1,10 @@
-package com.example.coupon;
+package com.example.coupon.application;
 
 import java.util.Optional;
+
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
 
 public interface CouponRepository {
 

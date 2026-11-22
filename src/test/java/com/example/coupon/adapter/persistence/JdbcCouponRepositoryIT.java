@@ -1,14 +1,22 @@
-package com.example.coupon;
+package com.example.coupon.adapter.persistence;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.List;
 import java.util.stream.IntStream;
 
+import com.example.coupon.TestcontainersConfiguration;
+import com.example.coupon.application.CouponRepository;
+import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
+import com.example.coupon.domain.CouponException;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;

@@ -1,4 +1,9 @@
-package com.example.coupon;
+package com.example.coupon.application;
+
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
+import com.example.coupon.domain.CouponException;
 
 import org.springframework.stereotype.Service;
 

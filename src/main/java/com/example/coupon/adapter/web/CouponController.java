@@ -1,13 +1,17 @@
-package com.example.coupon;
+package com.example.coupon.adapter.web;
 
 import java.net.URI;
 import java.time.Instant;
 
+import com.example.coupon.application.CouponService;
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.example.coupon;
+package com.example.coupon.domain;
 
 import java.util.Locale;
 import java.util.regex.Pattern;

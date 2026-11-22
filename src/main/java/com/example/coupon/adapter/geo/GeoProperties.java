@@ -1,4 +1,4 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
 
 import java.time.Duration;
 

@@ -1,7 +1,9 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
 
-import java.net.ProxySelector;
 import java.net.http.HttpClient;
+import java.net.ProxySelector;
+
+import com.example.coupon.application.GeoLocationPort;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.example.coupon;
+package com.example.coupon.domain;
 
 import java.time.Instant;
 

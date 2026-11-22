@@ -1,9 +1,15 @@
-package com.example.coupon;
+package com.example.coupon.adapter.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+
+import com.example.coupon.application.CouponRepository;
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.CouponCode;
+import com.example.coupon.domain.CouponException;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;

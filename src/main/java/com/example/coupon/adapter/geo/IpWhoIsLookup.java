@@ -1,5 +1,7 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
 
+import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.CouponException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.springframework.web.client.RestClient;

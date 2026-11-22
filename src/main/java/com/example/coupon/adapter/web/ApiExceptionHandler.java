@@ -1,5 +1,6 @@
-package com.example.coupon;
+package com.example.coupon.adapter.web;
 
+import com.example.coupon.domain.CouponException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

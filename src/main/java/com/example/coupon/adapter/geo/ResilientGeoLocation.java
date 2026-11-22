@@ -1,11 +1,13 @@
-package com.example.coupon;
+package com.example.coupon.adapter.geo;
 
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
+import java.util.Optional;
 
+import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.domain.CountryCode;
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
