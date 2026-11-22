@@ -6,8 +6,7 @@ Java 21, Spring Boot 4, PostgreSQL, Flyway, Gradle.
 ## Run
 
 ```
-./gradlew bootJar
-docker compose up -d --build   # PostgreSQL (localhost:5432) + the application (localhost:8080)
+docker compose up -d --build   # builds the jar inside Docker; PostgreSQL (localhost:5432) + the application (localhost:8080)
 ```
 
 Or only the database, with the application run from Gradle:

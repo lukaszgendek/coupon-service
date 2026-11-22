@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# PZU-specific local setup
+/pzu/
+docker-compose.pzu.yml
