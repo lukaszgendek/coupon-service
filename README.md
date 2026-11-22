@@ -91,8 +91,8 @@ timeouts), selected with `coupon.geo.provider`. If the country cannot be determi
 closed).
 
 **Packages** follow ports and adapters: `domain` (values, exceptions), `application` (`CouponService` and the ports),
-`adapter.web`, `adapter.persistence`, `adapter.geo`. `ArchitectureTest` fails the build if a dependency points the
-wrong way.
+`adapter.web`, `adapter.persistence`, `adapter.geo`. Domain and application are plain Java with no Spring imports; the
+wiring is in `CouponConfig`. `ArchitectureTest` fails the build if a dependency points the wrong way.
 
 **Virtual threads** are enabled so that requests waiting for the geolocation service or the database do not occupy
 platform threads. The connection pool (20, 2 s timeout) is then the bounded resource: under overload the service

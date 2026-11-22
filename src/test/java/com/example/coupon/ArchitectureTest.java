@@ -18,8 +18,9 @@ class ArchitectureTest {
 					"org.springframework..");
 
 	@ArchTest
-	static final ArchRule applicationDoesNotKnowAdapters = noClasses().that().resideInAPackage("..application..")
-			.should().dependOnClassesThat().resideInAPackage("..adapter..");
+	static final ArchRule applicationIsFrameworkFreeAndDoesNotKnowAdapters = noClasses().that()
+			.resideInAPackage("..application..")
+			.should().dependOnClassesThat().resideInAnyPackage("..adapter..", "org.springframework..");
 
 	@ArchTest
 	static final ArchRule adaptersAreIndependent = slices().matching("..adapter.(*)..")

@@ -5,16 +5,13 @@ import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
 import com.example.coupon.domain.CouponException;
 
-import org.springframework.stereotype.Service;
-
-@Service
 public class CouponService {
 
 	private final CouponRepository coupons;
 
 	private final GeoLocationPort geo;
 
-	CouponService(CouponRepository coupons, GeoLocationPort geo) {
+	public CouponService(CouponRepository coupons, GeoLocationPort geo) {
 		this.coupons = coupons;
 		this.geo = geo;
 	}
