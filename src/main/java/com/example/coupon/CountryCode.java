@@ -10,13 +10,13 @@ public record CountryCode(String value) {
 
 	public CountryCode {
 		if (value == null || !ISO_ALPHA2.matcher(value).matches()) {
-			throw new IllegalArgumentException("Country must be an ISO 3166-1 alpha-2 code, e.g. PL");
+			throw new CouponException.InvalidInput("Country must be an ISO 3166-1 alpha-2 code, e.g. PL");
 		}
 	}
 
 	public static CountryCode of(String raw) {
 		if (raw == null) {
-			throw new IllegalArgumentException("Country is required");
+			throw new CouponException.InvalidInput("Country is required");
 		}
 		return new CountryCode(raw.trim().toUpperCase(Locale.ROOT));
 	}

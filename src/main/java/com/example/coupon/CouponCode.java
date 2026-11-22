@@ -10,13 +10,13 @@ public record CouponCode(String value) {
 
 	public CouponCode {
 		if (value == null || !ALLOWED.matcher(value).matches()) {
-			throw new IllegalArgumentException("Coupon code must be 1-64 characters: letters, digits, '-' or '_'");
+			throw new CouponException.InvalidInput("Coupon code must be 1-64 characters: letters, digits, '-' or '_'");
 		}
 	}
 
 	public static CouponCode of(String raw) {
 		if (raw == null) {
-			throw new IllegalArgumentException("Coupon code is required");
+			throw new CouponException.InvalidInput("Coupon code is required");
 		}
 		return new CouponCode(raw.trim().toUpperCase(Locale.ROOT));
 	}

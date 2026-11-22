@@ -18,6 +18,10 @@ public class CouponService {
 		return coupons.create(code, country, maxUses);
 	}
 
+	public Coupon get(CouponCode code) {
+		return coupons.findByCode(code).orElseThrow(CouponException.NotFound::new);
+	}
+
 	/**
 	 * Cheap checks run first, outside any transaction, so that rejected requests (unknown or exhausted coupon,
 	 * wrong country) write nothing and do not hold a database connection while the geo lookup is in flight.
