@@ -112,6 +112,16 @@ address ranges (the proxy in front of the service). Behind a different proxy set
 callers could spoof their country. The proxy must overwrite the header, not append to it. Rate limiting is not
 implemented: a caller who varies the header over many valid public addresses can still use up the provider's quota.
 
+## Known limitations
+
+- **No authentication or authorisation.** Anyone who can reach the API can create coupons, and `userId` is taken from
+  the request body without verification, so "one use per user" is only as strong as the caller's honesty. In a real
+  deployment the user would come from an authenticated identity, and coupon creation would be restricted.
+- **Database credentials are hard-coded** in `docker-compose.yml` (and defaulted in `application.properties`) for
+  convenience. Outside local use they belong in a secret store or environment.
+- **No data persistence in Docker.** The PostgreSQL container has no volume, so `docker compose down` discards the
+  coupons.
+
 ## Possible next steps
 
 - Rate limiting per IP in front of the service.
