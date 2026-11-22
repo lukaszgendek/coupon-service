@@ -5,8 +5,9 @@ services:
       POSTGRES_DB: coupons
       POSTGRES_USER: coupons
       POSTGRES_PASSWORD: coupons
-    ports:
-      - "5432:5432"
+    # Uncomment to reach the database from the host (psql, a DB client, or ./gradlew bootRun) on localhost:5432.
+    # ports:
+    #   - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U coupons -d coupons"]
       interval: 2s
