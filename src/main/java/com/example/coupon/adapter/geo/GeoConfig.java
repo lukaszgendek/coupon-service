@@ -16,7 +16,9 @@ class GeoConfig {
 
 	@Bean
 	GeoLocationPort geoLocationPort(CountryLookup lookup, GeoProperties properties) {
-		return new ResilientGeoLocation(lookup, properties.cacheTtl(), ResilientGeoLocation.newCircuitBreaker());
+		// The hard timeout is a safety net above the HTTP client's own timeout.
+		return new ResilientGeoLocation(lookup, properties.cacheTtl(), properties.timeout().plusSeconds(1),
+				ResilientGeoLocation.newCircuitBreaker());
 	}
 
 	/** Selected with {@code coupon.geo.provider}; add a provider by adding a {@link CountryLookup} bean like this. */

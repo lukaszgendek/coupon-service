@@ -22,7 +22,8 @@ class ResilientGeoLocationTest {
 	private final AtomicInteger calls = new AtomicInteger();
 
 	private ResilientGeoLocation geo(CountryLookup lookup) {
-		return new ResilientGeoLocation(lookup, Duration.ofMinutes(10), ResilientGeoLocation.newCircuitBreaker());
+		return new ResilientGeoLocation(lookup, Duration.ofMinutes(10), Duration.ofSeconds(5),
+				ResilientGeoLocation.newCircuitBreaker());
 	}
 
 	@Test
@@ -52,16 +53,56 @@ class ResilientGeoLocationTest {
 	}
 
 	@Test
-	void unknownAddressIsEmptyAndNotCached() {
+	void unknownAddressIsEmptyAndRememberedSoTheProviderIsAskedOnce() {
 		ResilientGeoLocation geo = geo(ip -> {
 			calls.incrementAndGet();
-			throw new CountryLookup.UnknownAddress("private range");
+			throw new CountryLookup.UnknownAddress("no country");
 		});
 
-		assertThat(geo.countryOf("10.0.0.1")).isEmpty();
-		assertThat(geo.countryOf("10.0.0.1")).isEmpty();
+		assertThat(geo.countryOf("203.0.113.10")).isEmpty();
+		assertThat(geo.countryOf("203.0.113.10")).isEmpty();
 
-		assertThat(calls).hasValue(2);
+		assertThat(calls).hasValue(1);
+	}
+
+	@Test
+	void nonPublicAddressesNeverReachTheProvider() {
+		ResilientGeoLocation geo = geo(ip -> {
+			calls.incrementAndGet();
+			return CountryCode.of("PL");
+		});
+
+		for (String ip : List.of("abc", "", "10.0.0.5", "127.0.0.1", "192.168.1.1", "::1", "fd00::1", "1.2.3")) {
+			assertThat(geo.countryOf(ip)).as(ip).isEmpty();
+		}
+
+		assertThat(calls).hasValue(0);
+	}
+
+	@Test
+	void differentWritingsOfOneAddressShareACacheEntry() {
+		ResilientGeoLocation geo = geo(ip -> {
+			calls.incrementAndGet();
+			return CountryCode.of("PL");
+		});
+
+		assertThat(geo.countryOf("2001:db8::1")).contains(CountryCode.of("PL"));
+		assertThat(geo.countryOf("2001:0db8:0:0:0:0:0:1")).contains(CountryCode.of("PL"));
+
+		assertThat(calls).hasValue(1);
+	}
+
+	@Test
+	void lookupSlowerThanTheHardTimeoutIsEmptyAndNotCached() {
+		ResilientGeoLocation geo = new ResilientGeoLocation(ip -> {
+			if (calls.incrementAndGet() == 1) {
+				sleep(1_000);
+			}
+			return CountryCode.of("PL");
+		}, Duration.ofMinutes(10), Duration.ofMillis(200), ResilientGeoLocation.newCircuitBreaker());
+
+		assertThat(geo.countryOf("203.0.113.11")).isEmpty();
+		assertThat(geo.countryOf("203.0.113.11")).contains(CountryCode.of("PL"));
 	}
 
 	@Test
@@ -90,7 +131,7 @@ class ResilientGeoLocationTest {
 		ResilientGeoLocation geo = new ResilientGeoLocation(ip -> {
 			calls.incrementAndGet();
 			throw new CountryLookup.Unavailable("down", null);
-		}, Duration.ofMinutes(10), breaker);
+		}, Duration.ofMinutes(10), Duration.ofSeconds(5), breaker);
 
 		for (int i = 1; i <= 5; i++) {
 			assertThat(geo.countryOf("203.0.113." + i)).isEmpty();
@@ -106,10 +147,10 @@ class ResilientGeoLocationTest {
 		CircuitBreaker breaker = smallBreaker();
 		ResilientGeoLocation geo = new ResilientGeoLocation(ip -> {
 			throw new CountryLookup.UnknownAddress("private range");
-		}, Duration.ofMinutes(10), breaker);
+		}, Duration.ofMinutes(10), Duration.ofSeconds(5), breaker);
 
 		for (int i = 1; i <= 8; i++) {
-			assertThat(geo.countryOf("10.0.0." + i)).isEmpty();
+			assertThat(geo.countryOf("203.0.113." + i)).isEmpty();
 		}
 
 		assertThat(breaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);

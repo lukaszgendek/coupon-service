@@ -87,9 +87,11 @@ exhausted coupon is therefore reported before a country mismatch, which also sav
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
 
-**Geolocation** is behind a port (`GeoLocationPort`). `ResilientGeoLocation` adds what every provider needs: a cache of
-successful answers (10 minutes, failures are not cached), single-flight (concurrent requests for one address share one
-lookup, waiting on a future rather than a lock), lookups on virtual threads, and a Resilience4j circuit breaker that
+**Geolocation** is behind a port (`GeoLocationPort`). `ResilientGeoLocation` adds what every provider needs: it looks up
+only public IP addresses (anything else is rejected without a provider request), a cache of answers (10 minutes; "the
+provider does not know this address" for 1 minute; technical failures are not cached), single-flight (concurrent
+requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual threads with a
+hard timeout, and a Resilience4j circuit breaker that
 fails fast while the provider is down. A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s
 timeouts), selected with `coupon.geo.provider`. If the country cannot be determined the request is rejected (fail
 closed).
@@ -104,7 +106,8 @@ answers 503 quickly instead of queueing without limit.
 
 **Client address.** `server.forward-headers-strategy=native` makes Tomcat trust `X-Forwarded-For` only from private
 address ranges (the proxy in front of the service). Behind a different proxy setup, configure the trusted proxies, or
-callers could spoof their country.
+callers could spoof their country. The proxy must overwrite the header, not append to it. Rate limiting is not
+implemented: a caller who varies the header over many valid public addresses can still use up the provider's quota.
 
 ## Possible next steps
 
