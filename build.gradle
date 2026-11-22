@@ -25,6 +25,7 @@ dependencies {
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	runtimeOnly 'org.postgresql:postgresql'
 	implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
+	implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.4.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
@@ -32,6 +33,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-postgresql'
+	testImplementation 'org.wiremock:wiremock-standalone:3.13.2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
