@@ -169,8 +169,10 @@ implemented: a caller who varies the header over many valid public addresses can
 - **No authentication or authorisation.** Anyone who can reach the API can create coupons. In a real deployment
   coupon creation would be restricted.
 - **`userId` is an opaque identifier.** It comes from the request body and is not verified, because authentication is
-  out of scope. The service compares it exactly (`U1` and `u1` are different users). In production it would be the
-  authenticated subject, so one-use-per-user is only as strong as that identity.
+  out of scope. The service compares it exactly (`U1` and `u1` are different users) and accepts only 1-64 characters
+  from `[A-Za-z0-9._@-]` (`UserId`), which keeps control characters out of the database and the logs; a real identity
+  provider may need a wider set. In production it would be the authenticated subject, so one-use-per-user is only as
+  strong as that identity.
 - **Database credentials are hard-coded** in `docker-compose.yml` (and defaulted in `application.properties`) for
   convenience. Outside local use they belong in a secret store or environment.
 - **No data persistence in Docker.** The PostgreSQL container has no volume, so `docker compose down` discards the

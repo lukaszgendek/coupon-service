@@ -15,6 +15,7 @@ import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
 import com.example.coupon.domain.CouponException;
+import com.example.coupon.domain.UserId;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +61,20 @@ class JdbcCouponRepositoryIT {
 	void sameUserCannotConsumeTwiceAndSecondAttemptConsumesNoSlot() {
 		Coupon coupon = repository.create(CouponCode.of("once"), CountryCode.of("PL"), 5);
 
-		repository.consume(coupon.id(), "u1");
+		repository.consume(coupon.id(), UserId.of("u1"));
 
-		assertThatThrownBy(() -> repository.consume(coupon.id(), "u1")).isInstanceOf(CouponException.AlreadyUsed.class);
+		assertThatThrownBy(() -> repository.consume(coupon.id(), UserId.of("u1")))
+				.isInstanceOf(CouponException.AlreadyUsed.class);
 		assertThat(usedCount(coupon.id())).isEqualTo(1);
 	}
 
 	@Test
 	void exhaustedCouponRollsBackTheUsageRow() {
 		Coupon coupon = repository.create(CouponCode.of("last-slot"), CountryCode.of("PL"), 1);
-		repository.consume(coupon.id(), "u1");
+		repository.consume(coupon.id(), UserId.of("u1"));
 
-		assertThatThrownBy(() -> repository.consume(coupon.id(), "u2")).isInstanceOf(CouponException.Exhausted.class);
+		assertThatThrownBy(() -> repository.consume(coupon.id(), UserId.of("u2")))
+				.isInstanceOf(CouponException.Exhausted.class);
 
 		assertThat(usageRows(coupon.id())).isEqualTo(1);
 		assertThat(usedCount(coupon.id())).isEqualTo(1);
@@ -108,7 +111,7 @@ class JdbcCouponRepositoryIT {
 
 	private Outcome attempt(long couponId, String userId) {
 		try {
-			repository.consume(couponId, userId);
+			repository.consume(couponId, UserId.of(userId));
 			return Outcome.OK;
 		}
 		catch (CouponException.Exhausted e) {

@@ -7,6 +7,7 @@ import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
 import com.example.coupon.domain.CouponException;
+import com.example.coupon.domain.UserId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -85,7 +87,27 @@ class CouponControllerTest {
 		}).contentType(MediaType.APPLICATION_JSON).content("{\"userId\":\"u1\"}"))
 				.andExpect(status().isNoContent());
 
-		verify(service).use(CouponCode.of("WIOSNA"), "u1", "203.0.113.7");
+		verify(service).use(CouponCode.of("WIOSNA"), UserId.of("u1"), "203.0.113.7");
+	}
+
+	@ParameterizedTest
+	@MethodSource("invalidUsageBodies")
+	void invalidUserIdIs400WithErrorCodeAndNothingIsCalled(String body) throws Exception {
+		mvc.perform(post("/api/coupons/wiosna/usages").contentType(MediaType.APPLICATION_JSON).content(body))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("INVALID_INPUT"));
+
+		verifyNoInteractions(service);
+	}
+
+	static Stream<String> invalidUsageBodies() {
+		return Stream.of(
+				"{\"userId\":\"u\\u0000\"}",
+				"{\"userId\":\"line\\nbreak\"}",
+				"{\"userId\":\"with space\"}",
+				"{\"userId\":\"\"}",
+				"{\"userId\":\"" + "x".repeat(65) + "\"}",
+				"{}");
 	}
 
 	@ParameterizedTest

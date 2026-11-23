@@ -7,6 +7,7 @@ import com.example.coupon.application.port.in.CouponUseCases;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
+import com.example.coupon.domain.UserId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -46,14 +47,14 @@ class CouponController {
 	@PostMapping("/{code}/usages")
 	ResponseEntity<Void> use(@PathVariable String code, @Valid @RequestBody UseCouponRequest request,
 			HttpServletRequest http) {
-		service.use(CouponCode.of(code), request.userId(), http.getRemoteAddr());
+		service.use(CouponCode.of(code), UserId.of(request.userId()), http.getRemoteAddr());
 		return ResponseEntity.noContent().build();
 	}
 
 	record CreateCouponRequest(@NotBlank @Size(max = 64) String code, @NotBlank String country, @Min(1) int maxUses) {
 	}
 
-	record UseCouponRequest(@NotBlank @Size(max = 64) String userId) {
+	record UseCouponRequest(String userId) {
 	}
 
 	record CouponResponse(String code, String country, int maxUses, int usedCount, Instant createdAt) {

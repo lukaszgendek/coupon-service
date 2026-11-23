@@ -10,6 +10,7 @@ import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
 import com.example.coupon.domain.CouponException;
+import com.example.coupon.domain.UserId;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -57,14 +58,14 @@ class JdbcCouponRepository implements CouponRepository {
 
 	@Override
 	@Transactional
-	public void consume(long couponId, String userId) {
+	public void consume(long couponId, UserId userId) {
 		// A duplicate user writes nothing and raises no database error: 0 rows means "already used".
 		int inserted = jdbc.sql("""
 				INSERT INTO coupon_usage (coupon_id, user_id) VALUES (:couponId, :userId)
 				ON CONFLICT DO NOTHING
 				""")
 				.param("couponId", couponId)
-				.param("userId", userId)
+				.param("userId", userId.value())
 				.update();
 		if (inserted == 0) {
 			throw new CouponException.AlreadyUsed();

@@ -7,6 +7,7 @@ import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
 import com.example.coupon.domain.CouponException;
+import com.example.coupon.domain.UserId;
 
 public class CouponService implements CouponUseCases {
 
@@ -35,7 +36,7 @@ public class CouponService implements CouponUseCases {
 	 * The race for the last slots is decided by {@link CouponRepository#consume}.
 	 */
 	@Override
-	public void use(CouponCode code, String userId, String clientIp) {
+	public void use(CouponCode code, UserId userId, String clientIp) {
 		Coupon coupon = coupons.findByCode(code).orElseThrow(CouponException.NotFound::new);
 		if (coupon.isExhausted()) {
 			throw new CouponException.Exhausted();
