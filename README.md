@@ -155,12 +155,13 @@ plain Java with no Spring imports; the wiring is in `CouponConfig`. This gives t
   being fetched". The first request starts the lookup, and concurrent requests for the same address find that future
   and wait on it, so they share one provider call. Waiting on a future instead of a lock means no deadlock risk,
   lookups for different addresses never block each other, and a waiting virtual thread is cheap.
-- **Virtual threads and a hard timeout.** The provider lookup is a blocking HTTP call. It runs on a virtual thread,
-  which is parked while it waits for the network, so slow lookups do not use up the platform threads that serve other
-  requests. The HTTP client has its own timeouts (2 s), but they cover only specific cases (connecting, waiting for
-  the next bytes), so the whole lookup also has an overall deadline. When it passes, waiting requests get 503
-  `GEO_UNAVAILABLE` and the failure counts for the circuit breaker. Every request therefore has a guaranteed maximum
-  wait on geolocation. The deadline stops waiting; it does not cancel the HTTP call, which ends at the client timeout.
+- **Virtual threads.** The provider lookup is a blocking HTTP call. It runs on a virtual thread, which is parked while
+  it waits for the network, so slow lookups do not use up the platform threads that serve other requests.
+- **Hard timeout.** The HTTP client has its own timeouts (2 s), but they cover only specific cases (connecting,
+  waiting for the next bytes), so the whole lookup also has an overall deadline. When it passes, waiting requests get
+  503 `GEO_UNAVAILABLE` and the failure counts for the circuit breaker. Every request therefore has a guaranteed
+  maximum wait on geolocation. The deadline stops waiting; it does not cancel the HTTP call, which ends at the client
+  timeout.
 - **Circuit breaker** (Resilience4j). It fails fast while the provider is down.
 
 A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeouts), selected with
