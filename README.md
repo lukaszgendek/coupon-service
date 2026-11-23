@@ -167,7 +167,7 @@ A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeo
 `coupon.geo.provider`. If the country cannot be determined the request is rejected (fail closed).
 
 **Virtual threads** are enabled so that requests waiting for the geolocation service or the database do not occupy
-platform threads. The connection pool (20, 2 s timeout) is then the bounded resource: under overload the service
+platform threads. The database connection pool (20, 2 s timeout) is then the bounded resource: under overload the service
 answers 503 quickly instead of queueing without limit.
 
 **Client address.** `server.forward-headers-strategy=native` makes Tomcat trust `X-Forwarded-For` only from private
