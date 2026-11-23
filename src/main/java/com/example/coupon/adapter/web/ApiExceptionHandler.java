@@ -7,11 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /** Maps failures to RFC 9457 problem details; the machine-readable reason is in the "error" property. */
@@ -39,6 +41,18 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			response.header(HttpHeaders.RETRY_AFTER, "10");
 		}
 		return response.body(body);
+	}
+
+	/** Framework 400s (bean validation, malformed JSON, bad types) get the same error code as our own. */
+	@Override
+	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+			HttpStatusCode statusCode, WebRequest request) {
+		ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
+		if (response != null && response.getBody() instanceof ProblemDetail problem
+				&& statusCode.value() == HttpStatus.BAD_REQUEST.value()) {
+			problem.setProperty("error", "INVALID_INPUT");
+		}
+		return response;
 	}
 
 	/** Includes the connection pool timeout under overload: shed load instead of queueing forever. */

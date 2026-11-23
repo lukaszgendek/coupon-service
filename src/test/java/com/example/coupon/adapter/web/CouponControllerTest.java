@@ -60,7 +60,8 @@ class CouponControllerTest {
 	@MethodSource("invalidCreateBodies")
 	void invalidCreateRequestIs400(String body) throws Exception {
 		mvc.perform(post("/api/coupons").contentType(MediaType.APPLICATION_JSON).content(body))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("INVALID_INPUT"));
 	}
 
 	static Stream<String> invalidCreateBodies() {
@@ -68,7 +69,8 @@ class CouponControllerTest {
 				"{\"code\":\"\",\"country\":\"PL\",\"maxUses\":1}",
 				"{\"code\":\"A\",\"country\":\"PL\",\"maxUses\":0}",
 				"{\"code\":\"A\",\"maxUses\":1}",
-				"{}");
+				"{}",
+				"{not json");
 	}
 
 	@Test
