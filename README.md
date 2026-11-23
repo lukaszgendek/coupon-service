@@ -179,8 +179,9 @@ the one use per user (row lock and primary key), so they work across any number 
 (for example a Kubernetes `Deployment` with an HPA) behind a layer-7 HTTP load balancer (Ingress or API Gateway). Some
 things do not scale by themselves:
 
-- **Database connections.** Each pod has its own pool (20 connections), so pods × 20 must stay below PostgreSQL's
-  `max_connections`. Otherwise you need a pooler such as PgBouncer.
+- **Database connections.** Each pod has its own pool of 20 connections. PostgreSQL has a limit (`max_connections`, 100
+  by default), and every connection is costly. With many pods, pods × 20 can exceed the limit. A pooler such as
+  PgBouncer keeps a few real connections to the database and shares them between the pods.
 - **One very popular coupon.** The row lock handles its uses one after another, so more pods do not make it faster.
 - **Geolocation cache and circuit breaker exist per pod.** More pods mean more provider calls for the same address. You
   can reduce this by sending the same client address to the same pod (consistent hashing on the client IP in the
