@@ -45,9 +45,24 @@ public abstract sealed class CouponException extends RuntimeException {
 		}
 	}
 
-	public static final class CountryUnknown extends CouponException {
-		public CountryUnknown() {
+	/** The provider answered but cannot tell where the (public) address is, so the country cannot be verified. */
+	public static final class CountryNotVerifiable extends CouponException {
+		public CountryNotVerifiable() {
 			super("Could not determine the country of the request");
+		}
+	}
+
+	/** Technical failure of the geolocation provider; temporary. */
+	public static final class GeoUnavailable extends CouponException {
+		public GeoUnavailable() {
+			super("Country check is temporarily unavailable, retry later");
+		}
+	}
+
+	/** The service only sees a private or otherwise non-public address: usually a missing proxy configuration. */
+	public static final class ClientAddressNotPublic extends CouponException {
+		public ClientAddressNotPublic() {
+			super("Could not determine the public address of the client");
 		}
 	}
 

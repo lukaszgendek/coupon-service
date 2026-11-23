@@ -69,11 +69,11 @@ class CouponServiceTest {
 	}
 
 	@Test
-	void unknownCountryFailsClosed() {
+	void countryTheProviderDoesNotKnowFailsClosed() {
 		given(coupons.findByCode(CODE)).willReturn(Optional.of(coupon("PL", 2, 0)));
 		given(geo.countryOf(IP)).willReturn(Optional.empty());
 
-		assertThatThrownBy(() -> service.use(CODE, "u1", IP)).isInstanceOf(CouponException.CountryUnknown.class);
+		assertThatThrownBy(() -> service.use(CODE, "u1", IP)).isInstanceOf(CouponException.CountryNotVerifiable.class);
 
 		verify(coupons, never()).consume(anyLong(), anyString());
 	}

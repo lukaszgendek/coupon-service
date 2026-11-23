@@ -55,7 +55,7 @@ class GeoCircuitBreakerIT {
 
 		for (int i = 11; i <= 20; i++) {
 			use("203.0.113." + i).andExpect(status().isServiceUnavailable())
-					.andExpect(jsonPath("$.error").value("COUNTRY_UNKNOWN"));
+					.andExpect(jsonPath("$.error").value("GEO_UNAVAILABLE"));
 		}
 
 		assertThat(callsUntilOpen).isEqualTo(10);

@@ -34,7 +34,7 @@ public class CouponService {
 		if (coupon.isExhausted()) {
 			throw new CouponException.Exhausted();
 		}
-		CountryCode country = geo.countryOf(clientIp).orElseThrow(CouponException.CountryUnknown::new);
+		CountryCode country = geo.countryOf(clientIp).orElseThrow(CouponException.CountryNotVerifiable::new);
 		if (!country.equals(coupon.country())) {
 			throw new CouponException.CountryNotAllowed();
 		}

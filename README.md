@@ -57,7 +57,9 @@ Errors are RFC 9457 problem details with a machine-readable `error` property:
 | 409 | `COUPON_EXHAUSTED` | maximum number of uses reached |
 | 409 | `COUPON_ALREADY_USED` | this user already used the coupon |
 | 409 | `COUPON_CODE_TAKEN` | code exists already (case-insensitive) |
-| 503 | `COUNTRY_UNKNOWN` | the country of the caller could not be determined |
+| 403 | `COUNTRY_NOT_VERIFIABLE` | the geo provider does not know the caller's public address |
+| 503 | `GEO_UNAVAILABLE` | the geo provider failed, timed out or is rate-limited (`Retry-After: 10`) |
+| 503 | `CLIENT_ADDRESS_NOT_PUBLIC` | the service sees only a private address, usually a proxy that does not set `X-Forwarded-For` |
 | 503 | `SERVICE_OVERLOADED` | no database connection within 2 s (`Retry-After: 1`) |
 
 Try it locally (the client address is taken from `X-Forwarded-For` when the request comes from a private-range proxy,

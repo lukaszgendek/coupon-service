@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.example.coupon.application.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.CouponException;
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
@@ -86,7 +87,7 @@ class ResilientGeoLocation implements GeoLocationPort, AutoCloseable {
 		Optional<String> address = ClientAddress.publicAddress(ip);
 		if (address.isEmpty()) {
 			log.debug("Not a public IP address, skipping the lookup");
-			return Optional.empty();
+			throw new CouponException.ClientAddressNotPublic();
 		}
 		String key = address.get();
 		CompletableFuture<Answer> pending = cache.get(key,
@@ -104,7 +105,7 @@ class ResilientGeoLocation implements GeoLocationPort, AutoCloseable {
 			else {
 				log.warn("Geolocation lookup failed for {}: {}", key, e.getCause().toString());
 			}
-			return Optional.empty();
+			throw new CouponException.GeoUnavailable();
 		}
 	}
 

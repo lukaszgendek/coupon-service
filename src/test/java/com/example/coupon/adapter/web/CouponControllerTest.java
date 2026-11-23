@@ -107,7 +107,9 @@ class CouponControllerTest {
 				Arguments.of(new CouponException.CountryNotAllowed(), 403, "COUNTRY_NOT_ALLOWED"),
 				Arguments.of(new CouponException.Exhausted(), 409, "COUPON_EXHAUSTED"),
 				Arguments.of(new CouponException.AlreadyUsed(), 409, "COUPON_ALREADY_USED"),
-				Arguments.of(new CouponException.CountryUnknown(), 503, "COUNTRY_UNKNOWN"),
+				Arguments.of(new CouponException.CountryNotVerifiable(), 403, "COUNTRY_NOT_VERIFIABLE"),
+				Arguments.of(new CouponException.GeoUnavailable(), 503, "GEO_UNAVAILABLE"),
+				Arguments.of(new CouponException.ClientAddressNotPublic(), 503, "CLIENT_ADDRESS_NOT_PUBLIC"),
 				Arguments.of(new DataAccessResourceFailureException("pool timeout"), 503, "SERVICE_OVERLOADED"));
 	}
 

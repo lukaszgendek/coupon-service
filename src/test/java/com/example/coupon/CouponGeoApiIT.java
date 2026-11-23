@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,12 +67,22 @@ class CouponGeoApiIT {
 
 	@Test
 	void geoApiSayingItDoesNotKnowTheAddressIsRejected() throws Exception {
-		geoApi.stubFor(get(urlPathEqualTo("/10.0.0.20")).willReturn(aResponse()
+		geoApi.stubFor(get(urlPathEqualTo("/203.0.113.20")).willReturn(aResponse()
 				.withHeader("Content-Type", "application/json").withBody("{\"success\":false}")));
 		createCoupon("GEO-UNKNOWN", "PL", 5);
 
-		use("GEO-UNKNOWN", "u1", "10.0.0.20").andExpect(status().isServiceUnavailable())
-				.andExpect(jsonPath("$.error").value("COUNTRY_UNKNOWN"));
+		use("GEO-UNKNOWN", "u1", "203.0.113.20").andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error").value("COUNTRY_NOT_VERIFIABLE"));
+	}
+
+	@Test
+	void privateClientAddressIsRejectedWithoutAskingTheGeoApi() throws Exception {
+		createCoupon("GEO-PRIVATE", "PL", 5);
+
+		use("GEO-PRIVATE", "u1", "10.0.0.20").andExpect(status().isServiceUnavailable())
+				.andExpect(jsonPath("$.error").value("CLIENT_ADDRESS_NOT_PUBLIC"));
+
+		geoApi.verify(0, getRequestedFor(urlPathEqualTo("/10.0.0.20")));
 	}
 
 	@Test
@@ -82,7 +93,8 @@ class CouponGeoApiIT {
 		createCoupon("GEO-SLOW", "PL", 5);
 
 		use("GEO-SLOW", "u1", "203.0.113.30").andExpect(status().isServiceUnavailable())
-				.andExpect(jsonPath("$.error").value("COUNTRY_UNKNOWN"));
+				.andExpect(header().exists("Retry-After"))
+				.andExpect(jsonPath("$.error").value("GEO_UNAVAILABLE"));
 	}
 
 	@Test

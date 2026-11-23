@@ -10,11 +10,13 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.example.coupon.domain.CountryCode;
+import com.example.coupon.domain.CouponException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Cache, single-flight and circuit breaker, independent of any provider. */
 class ResilientGeoLocationTest {
@@ -40,7 +42,7 @@ class ResilientGeoLocationTest {
 	}
 
 	@Test
-	void failureIsEmptyAndNotCached() {
+	void failureIsReportedAndNotCached() {
 		ResilientGeoLocation geo = geo(ip -> {
 			if (calls.incrementAndGet() == 1) {
 				throw new CountryLookup.Unavailable("down", null);
@@ -48,7 +50,7 @@ class ResilientGeoLocationTest {
 			return CountryCode.of("DE");
 		});
 
-		assertThat(geo.countryOf("203.0.113.8")).isEmpty();
+		assertThatThrownBy(() -> geo.countryOf("203.0.113.8")).isInstanceOf(CouponException.GeoUnavailable.class);
 		assertThat(geo.countryOf("203.0.113.8")).contains(CountryCode.of("DE"));
 	}
 
@@ -73,7 +75,7 @@ class ResilientGeoLocationTest {
 		});
 
 		for (String ip : List.of("abc", "", "10.0.0.5", "127.0.0.1", "192.168.1.1", "::1", "fd00::1", "1.2.3")) {
-			assertThat(geo.countryOf(ip)).as(ip).isEmpty();
+			assertThatThrownBy(() -> geo.countryOf(ip)).as(ip).isInstanceOf(CouponException.ClientAddressNotPublic.class);
 		}
 
 		assertThat(calls).hasValue(0);
@@ -93,7 +95,7 @@ class ResilientGeoLocationTest {
 	}
 
 	@Test
-	void lookupSlowerThanTheHardTimeoutIsEmptyAndNotCached() {
+	void lookupSlowerThanTheHardTimeoutIsReportedAndNotCached() {
 		ResilientGeoLocation geo = new ResilientGeoLocation(ip -> {
 			if (calls.incrementAndGet() == 1) {
 				sleep(1_000);
@@ -101,7 +103,7 @@ class ResilientGeoLocationTest {
 			return CountryCode.of("PL");
 		}, Duration.ofMinutes(10), Duration.ofMillis(200), ResilientGeoLocation.newCircuitBreaker());
 
-		assertThat(geo.countryOf("203.0.113.11")).isEmpty();
+		assertThatThrownBy(() -> geo.countryOf("203.0.113.11")).isInstanceOf(CouponException.GeoUnavailable.class);
 		assertThat(geo.countryOf("203.0.113.11")).contains(CountryCode.of("PL"));
 	}
 
@@ -134,7 +136,8 @@ class ResilientGeoLocationTest {
 		}, Duration.ofMinutes(10), Duration.ofSeconds(5), breaker);
 
 		for (int i = 1; i <= 5; i++) {
-			assertThat(geo.countryOf("203.0.113." + i)).isEmpty();
+			String ip = "203.0.113." + i;
+			assertThatThrownBy(() -> geo.countryOf(ip)).isInstanceOf(CouponException.GeoUnavailable.class);
 		}
 
 		assertThat(breaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
