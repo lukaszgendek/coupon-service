@@ -110,9 +110,15 @@ lookups. The insert uses `ON CONFLICT DO NOTHING`: a duplicate is an expected bu
 "0 rows inserted" and maps to `COUPON_ALREADY_USED`, without catching a database exception or leaving an `ERROR` line
 in the PostgreSQL log.
 
-**Fail fast, write nothing.** Before any write the service checks, in order: the coupon exists, it is not exhausted, the
-caller's country matches. Rejected requests (the common case under load) cost one `SELECT` and hold no transaction. An
-exhausted coupon is therefore reported before a country mismatch, which also saves a geolocation call.
+**Fail fast, write nothing.** Before any write the service checks, in this order:
+
+1. The coupon exists (otherwise `COUPON_NOT_FOUND`).
+2. It is not exhausted (otherwise `COUPON_EXHAUSTED`).
+3. The caller's country matches (otherwise `COUNTRY_NOT_ALLOWED`).
+
+Only then does the transaction start. Requests rejected in steps 1 and 2, the common case under load, cost one `SELECT`
+and hold no transaction. An exhausted coupon is reported before a country mismatch, which also saves a geolocation
+call.
 
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
