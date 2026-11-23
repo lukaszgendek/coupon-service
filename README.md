@@ -115,22 +115,21 @@ exhausted coupon is therefore reported before a country mismatch, which also sav
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
 
-**Geolocation** follows the hexagonal (ports and adapters) architecture. The business code defines what it needs as an
-interface, a port (`GeoLocationPort`: "give me the country for this IP"), and knows nothing about HTTP, JSON or the
-provider. The implementation is an adapter outside the core, so the provider can be replaced without touching the
-business logic, and tests can use a simple fake. `ResilientGeoLocation` is the adapter and adds what every provider
-needs: it looks up
-only public IP addresses (anything else is rejected without a provider request), a cache of answers (10 minutes; "the
-provider does not know this address" for 1 minute; technical failures are not cached), single-flight (concurrent
-requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual threads with a
-hard timeout, and a Resilience4j circuit breaker that
-fails fast while the provider is down. A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s
-timeouts), selected with `coupon.geo.provider`. If the country cannot be determined the request is rejected (fail
-closed).
-
-**Packages** follow ports and adapters: `domain` (values, exceptions), `application` (`CouponService` and the ports),
-`adapter.web`, `adapter.persistence`, `adapter.geo`. Domain and application are plain Java with no Spring imports; the
+**Hexagonal architecture (ports and adapters).** The business code (`domain`, `application`) defines what it needs from
+the outside world as interfaces, the ports (`CouponRepository`: "store and load coupons", `GeoLocationPort`: "give me
+the country for this IP"), and knows nothing about HTTP, SQL, JSON or a geolocation provider. Everything technical is an
+adapter around the core: `adapter.web` (REST), `adapter.persistence` (PostgreSQL through JDBC) and `adapter.geo`
+(the geolocation provider). Dependencies point inwards only, so an adapter can be replaced without touching the
+business logic, and tests can use simple fakes. `domain` and `application` are plain Java with no Spring imports; the
 wiring is in `CouponConfig`. `ArchitectureTest` fails the build if a dependency points the wrong way.
+
+**Geolocation** is such an adapter. `ResilientGeoLocation` implements the port and adds what every provider needs: it
+looks up only public IP addresses (anything else is rejected without a provider request), a cache of answers (10
+minutes; "the provider does not know this address" for 1 minute; technical failures are not cached), single-flight
+(concurrent requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual
+threads with a hard timeout, and a Resilience4j circuit breaker that fails fast while the provider is down. A provider
+only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeouts), selected with `coupon.geo.provider`. If the
+country cannot be determined the request is rejected (fail closed).
 
 **Virtual threads** are enabled so that requests waiting for the geolocation service or the database do not occupy
 platform threads. The connection pool (20, 2 s timeout) is then the bounded resource: under overload the service
