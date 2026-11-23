@@ -170,6 +170,17 @@ A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeo
 platform threads. The database connection pool (20, 2 s timeout) is then the bounded resource: under overload the service
 answers 503 quickly instead of queueing without limit.
 
+**Scaling out.** The service is stateless: all coupon state lives in PostgreSQL, and the limit and one-use-per-user are
+enforced by the database (row lock and primary key), so they hold across any number of instances. To scale, run more
+pods (for example a Kubernetes `Deployment` with an HPA) behind a layer-7 HTTP load balancer (Ingress or API Gateway).
+What does not scale by itself:
+
+- **Database connections.** Each pod has its own pool (20), so pods × 20 must stay below PostgreSQL's
+  `max_connections`, or a pooler such as PgBouncer is needed.
+- **One very hot coupon.** Its uses are processed one after another by the row lock, so more pods do not make it
+  faster.
+- **Geolocation cache and circuit breaker are per pod.** More pods mean more provider calls for the same address.
+
 **Client address.** `server.forward-headers-strategy=native` makes Tomcat trust `X-Forwarded-For` only from private
 address ranges (the proxy in front of the service). The design assumes a layer-7 load balancer (API Gateway, Ingress)
 that overwrites the header with the original client address, and not appends to it. Layer-4 hops (Docker port mapping,
