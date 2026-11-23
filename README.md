@@ -115,7 +115,11 @@ exhausted coupon is therefore reported before a country mismatch, which also sav
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
 
-**Geolocation** is behind a port (`GeoLocationPort`). `ResilientGeoLocation` adds what every provider needs: it looks up
+**Geolocation** follows the hexagonal (ports and adapters) architecture. The business code defines what it needs as an
+interface, a port (`GeoLocationPort`: "give me the country for this IP"), and knows nothing about HTTP, JSON or the
+provider. The implementation is an adapter outside the core, so the provider can be replaced without touching the
+business logic, and tests can use a simple fake. `ResilientGeoLocation` is the adapter and adds what every provider
+needs: it looks up
 only public IP addresses (anything else is rejected without a provider request), a cache of answers (10 minutes; "the
 provider does not know this address" for 1 minute; technical failures are not cached), single-flight (concurrent
 requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual threads with a
