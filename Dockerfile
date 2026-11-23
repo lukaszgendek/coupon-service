@@ -3,7 +3,7 @@ WORKDIR /src
 # Dependencies first: this layer is reused until the build files change, so a code edit does not download them again.
 COPY gradlew build.gradle settings.gradle ./
 COPY gradle gradle
-RUN sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew dependencies --no-daemon
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew downloadDependencies --no-daemon
 COPY src src
 RUN ./gradlew bootJar --no-daemon -x test
 

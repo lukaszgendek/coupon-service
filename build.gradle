@@ -50,3 +50,12 @@ tasks.named('bootJar') {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Used by the Dockerfile to fill the dependency cache layer: resolving the graph alone does not download the jars.
+tasks.register('downloadDependencies') {
+	doLast {
+		['compileClasspath', 'runtimeClasspath', 'annotationProcessor'].each { name ->
+			configurations.getByName(name).resolve()
+		}
+	}
+}
