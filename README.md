@@ -123,6 +123,10 @@ implemented: a caller who varies the header over many valid public addresses can
   convenience. Outside local use they belong in a secret store or environment.
 - **No data persistence in Docker.** The PostgreSQL container has no volume, so `docker compose down` discards the
   coupons.
+- **The geolocation provider is a free tier.** ipwho.is allows 1,000 requests per day per calling IP, has no SLA, and
+  answers 429 beyond that. The cache (10 min per address) softens this, but with many distinct client addresses the
+  limit is reached and country-restricted coupons answer 503 until it resets. For production use a paid plan or a
+  local database (e.g. MMDB); only `CountryLookup` would change.
 
 ## Possible next steps
 
