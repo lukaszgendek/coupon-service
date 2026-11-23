@@ -28,7 +28,7 @@ only actuator endpoint that is exposed. The image has a `HEALTHCHECK` on it, so 
 returns when the application is ready.
 
 You can change the settings with environment variables: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_POOL_SIZE`,
-`GEO_BASE_URL`.
+`GEO_BASE_URL`, `GEO_PROVIDER`.
 
 ## Test
 
@@ -166,8 +166,9 @@ adapter sees only `CouponUseCases`. `ArchitectureTest` fails the build if one of
   next data), not the total time.
 - **Circuit breaker** (Resilience4j). While the provider is down, it fails fast.
 
-A provider only has to implement `CountryLookup` (now `IpWhoIsLookup`, with 2 s timeouts). It is chosen with
-`coupon.geo.provider`. If the country cannot be determined, the request is rejected (fail closed).
+To use another provider, write a class that implements `CountryLookup` and select it with `coupon.geo.provider` (set with
+the environment variable `GEO_PROVIDER`; the default is `ipwhois`). Today it is `IpWhoIsLookup` (2 s timeouts). If we
+cannot find the caller's country, we reject the request. We never guess.
 
 **Virtual threads** are enabled so that requests that wait for the geolocation service or the database do not occupy
 platform threads. The database connection pool (20 connections, 2 s timeout) is then the limited resource. Under
