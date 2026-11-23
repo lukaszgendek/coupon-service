@@ -9,10 +9,12 @@ Java 21, Spring Boot 4, PostgreSQL, Flyway, Gradle.
 docker compose up -d --build   # builds the jar inside Docker; PostgreSQL + the application (localhost:8080)
 ```
 
-The database is reachable only from the application inside the Docker network. To use it from your machine,
-uncomment the `ports` lines of the `postgres` service in `docker-compose.yml` (it then listens on `localhost:5432`).
+The database is closed inside the Docker network: only the application container can connect to it, and its port is not
+opened on your computer. To reach it from your computer (psql, a DB client, `bootRun`), uncomment `ports:` and
+`- "5432:5432"` under `postgres` in `docker-compose.yml`; it then listens on `localhost:5432`.
 
-Or only the database, with the application run from Gradle (needs those `ports` uncommented):
+For development you can run only the database and start the application from Gradle (this needs the port opened as
+described above; without `DB_URL` the application connects to `localhost:5432`):
 
 ```
 docker compose up -d postgres
