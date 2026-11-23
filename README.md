@@ -129,7 +129,7 @@ wiring is in `CouponConfig`. This gives three things:
 - **Easy tests.** `CouponServiceTest` mocks the ports, with no network, no database and no Spring.
 - **A clean core.** Technical concerns (cache, circuit breaker, timeout, SQL) stay out of the business rules.
 
-**Geolocation** is such an adapter. `ResilientGeoLocation` implements the port and adds what every provider needs: it
+**Geolocation** is a port (`GeoLocationPort`). Its adapter, `ResilientGeoLocation`, adds what every provider needs: it
 looks up only public IP addresses (anything else is rejected without a provider request), a cache of answers (10
 minutes; "the provider does not know this address" for 1 minute; technical failures are not cached), single-flight
 (concurrent requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual
