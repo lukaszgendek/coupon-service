@@ -119,8 +119,8 @@ in the PostgreSQL log.
 Only then does the transaction start. Requests rejected in steps 1 and 2, the common case under load, cost one `SELECT`
 and hold no transaction. The cheap local checks run before the external one, so a request for an exhausted coupon is
 answered without a geolocation call (a network round trip, and the free tier has a daily quota). The consequence is that
-a caller from a wrong country gets `COUPON_EXHAUSTED` rather than `COUNTRY_NOT_ALLOWED`. The final decision is always
-made by the atomic `UPDATE`.
+a caller from a wrong country gets `COUPON_EXHAUSTED` rather than `COUNTRY_NOT_ALLOWED`. The early checks are only a
+shortcut: whether a use is granted is decided by the atomic `INSERT` and `UPDATE` in the transaction.
 
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
