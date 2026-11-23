@@ -157,11 +157,10 @@ plain Java with no Spring imports; the wiring is in `CouponConfig`. This gives t
   lookups for different addresses never block each other, and a waiting virtual thread is cheap.
 - **Virtual threads.** The provider lookup is a blocking HTTP call. It runs on a virtual thread, which is parked while
   it waits for the network, so slow lookups do not use up the platform threads that serve other requests.
-- **Hard timeout.** The HTTP client has its own timeouts (2 s), but they cover only specific cases (connecting,
-  waiting for the next bytes), so the whole lookup also has an overall deadline. When it passes, waiting requests get
-  503 `GEO_UNAVAILABLE` and the failure counts for the circuit breaker. Every request therefore has a guaranteed
-  maximum wait on geolocation. The deadline stops waiting; it does not cancel the HTTP call, which ends at the client
-  timeout.
+- **Hard timeout.** A geolocation lookup may take at most a fixed total time. If the provider does not answer in time,
+  the request gets 503 `GEO_UNAVAILABLE` and the failure counts for the circuit breaker, so a slow provider can never
+  make requests hang. The HTTP client has its own 2 s timeouts, but they limit single steps (connecting, waiting for
+  the next data), not the total time.
 - **Circuit breaker** (Resilience4j). It fails fast while the provider is down.
 
 A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeouts), selected with
