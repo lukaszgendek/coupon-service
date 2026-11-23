@@ -105,9 +105,8 @@ the number of concurrent requests.
 **One use per user.** The primary key of `coupon_usage` is `(coupon_id, user_id)`, so the database itself guarantees
 that a user can use a coupon only once. There is no surrogate id and no sequence, and the one index also serves
 lookups. The insert uses `ON CONFLICT DO NOTHING`: a duplicate is an expected business outcome, so it comes back as
-"0 rows inserted" and maps to `COUPON_ALREADY_USED`, without catching a database exception. Both approaches are
-race-free, because the constraint decides either way. This one is simpler and cheaper, with no exception and no
-`ERROR` line in the PostgreSQL log.
+"0 rows inserted" and maps to `COUPON_ALREADY_USED`, without catching a database exception or leaving an `ERROR` line
+in the PostgreSQL log.
 
 **Fail fast, write nothing.** Before any write the service checks, in order: the coupon exists, it is not exhausted, the
 caller's country matches. Rejected requests (the common case under load) cost one `SELECT` and hold no transaction. An
