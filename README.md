@@ -98,7 +98,7 @@ short transaction; different coupons do not block each other.
 
 A `CHECK (used_count <= max_uses)` is the last line of defence: even a bug or a manual SQL statement cannot push the
 counter above the limit. When a request loses the race for the last slot, its `UPDATE` changes 0 rows, the service
-answers "exhausted", and the transaction rolls back, so the usage row inserted just before it disappears too. Technically
+answers "exhausted", and the transaction rolls back, so the usage row inserted just before the `UPDATE` disappears too. Technically
 the row is not removed from the file at once: after a rollback it stays as a dead tuple that no query can see, and
 autovacuum reclaims it later. Such rows are rare, because the exhausted check (a `SELECT`) runs before the transaction starts: only
 requests that were already past that check when the last slot was taken can leave one, so their number is bounded by
