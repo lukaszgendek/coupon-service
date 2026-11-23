@@ -79,9 +79,10 @@ INSERT INTO coupon_usage (coupon_id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHI
 UPDATE coupon SET used_count = used_count + 1 WHERE id = ? AND used_count < max_uses; -- 0 rows: exhausted
 ```
 
-The `UPDATE` takes a row lock, so concurrent requests for the same coupon are processed one after another, not at the
-same time. The limit therefore cannot be exceeded, no matter how many application instances run. For a coupon with
-`max_uses = 5` and `used_count = 4`, when two requests
+The `UPDATE` takes a row lock, so two requests consuming the same coupon cannot run it at the same time: the second
+waits for the first transaction to end, then re-checks `used_count < max_uses` against the new value. The lock is held
+by the database, so the limit holds no matter how many application instances run. For a coupon with `max_uses = 5` and
+`used_count = 4`, when two requests
 arrive at the same moment:
 
 1. Request A runs the `UPDATE`; Postgres locks the coupon's row until A's transaction ends.
