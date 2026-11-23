@@ -115,13 +115,19 @@ exhausted coupon is therefore reported before a country mismatch, which also sav
 **Case-insensitive codes** are normalised to upper case in the application (`CouponCode`) before any use, and stored
 that way under a unique constraint.
 
-**Hexagonal architecture (ports and adapters).** The business code (`domain`, `application`) defines what it needs from
-the outside world as interfaces, the ports (`CouponRepository`: "store and load coupons", `GeoLocationPort`: "give me
-the country for this IP"), and knows nothing about HTTP, SQL, JSON or a geolocation provider. Everything technical is an
-adapter around the core: `adapter.web` (REST), `adapter.persistence` (PostgreSQL through JDBC) and `adapter.geo`
-(the geolocation provider). Dependencies point inwards only, so an adapter can be replaced without touching the
-business logic, and tests can use simple fakes. `domain` and `application` are plain Java with no Spring imports; the
-wiring is in `CouponConfig`. `ArchitectureTest` fails the build if a dependency points the wrong way.
+**Hexagonal architecture (ports and adapters).** A port is an interface owned by the business code (`domain`,
+`application`). It says what the application needs, not how it is done: `CouponRepository` ("store and load coupons"),
+`GeoLocationPort` (`Optional<CountryCode> countryOf(String ip)`). `CouponService` knows only these interfaces, nothing
+about HTTP, SQL, JSON, caching or a geolocation provider. Everything technical is an adapter outside the core:
+`adapter.web` (REST), `adapter.persistence` (PostgreSQL through JDBC) and `adapter.geo` (`ResilientGeoLocation` wrapping
+`IpWhoIsLookup`). Dependencies point inwards only: an adapter depends on a port, never the other way, and
+`ArchitectureTest` fails the build if one does. `domain` and `application` are plain Java with no Spring imports; the
+wiring is in `CouponConfig`. This gives three things:
+
+- **Replaceable technology.** Swap the provider (another API, a local MMDB file) or the database without touching the
+  business logic.
+- **Easy tests.** `CouponServiceTest` mocks the ports, with no network, no database and no Spring.
+- **A clean core.** Technical concerns (cache, circuit breaker, timeout, SQL) stay out of the business rules.
 
 **Geolocation** is such an adapter. `ResilientGeoLocation` implements the port and adds what every provider needs: it
 looks up only public IP addresses (anything else is rejected without a provider request), a cache of answers (10
