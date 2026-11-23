@@ -145,13 +145,18 @@ plain Java with no Spring imports; the wiring is in `CouponConfig`. This gives t
 - **Easy tests.** `CouponServiceTest` mocks the ports, with no network, no database and no Spring.
 - **A clean core.** Technical concerns (cache, circuit breaker, timeout, SQL) stay out of the business rules.
 
-**Geolocation** is a port (`GeoLocationPort`). Its adapter, `ResilientGeoLocation`, adds what every provider needs: it
-looks up only public IP addresses (anything else is rejected without a provider request), a cache of answers (10
-minutes; "the provider does not know this address" for 1 minute; technical failures are not cached), single-flight
-(concurrent requests for one address share one lookup, waiting on a future rather than a lock), lookups on virtual
-threads with a hard timeout, and a Resilience4j circuit breaker that fails fast while the provider is down. A provider
-only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeouts), selected with `coupon.geo.provider`. If the
-country cannot be determined the request is rejected (fail closed).
+**Geolocation** is a port (`GeoLocationPort`). Its adapter, `ResilientGeoLocation`, adds the following features:
+
+- **Public addresses only.** Anything else (private, loopback, malformed) is rejected without a provider request.
+- **Cache of answers.** A known country is remembered for 10 minutes. "The provider does not know this address" is
+  remembered for 1 minute, so repeated requests for an unknown address do not reach the provider. Technical failures
+  are not cached, so the next request tries again.
+- **Single-flight.** Concurrent requests for one address share one lookup, waiting on a future rather than a lock.
+- **Virtual threads with a hard timeout.** A slow provider cannot hang requests.
+- **Circuit breaker** (Resilience4j). It fails fast while the provider is down.
+
+A provider only implements `CountryLookup` (currently `IpWhoIsLookup`, 2 s timeouts), selected with
+`coupon.geo.provider`. If the country cannot be determined the request is rejected (fail closed).
 
 **Virtual threads** are enabled so that requests waiting for the geolocation service or the database do not occupy
 platform threads. The connection pool (20, 2 s timeout) is then the bounded resource: under overload the service
