@@ -179,7 +179,10 @@ What does not scale by itself:
   `max_connections`, or a pooler such as PgBouncer is needed.
 - **One very hot coupon.** Its uses are processed one after another by the row lock, so more pods do not make it
   faster.
-- **Geolocation cache and circuit breaker are per pod.** More pods mean more provider calls for the same address.
+- **Geolocation cache and circuit breaker are per pod.** More pods mean more provider calls for the same address. This
+  can be reduced by routing the same client address to the same pod (consistent hashing on the client IP in the
+  ingress), or by a shared cache. It is only an optimisation: correctness never depends on it, because the database
+  decides every use.
 
 **Client address.** `server.forward-headers-strategy=native` makes Tomcat trust `X-Forwarded-For` only from private
 address ranges (the proxy in front of the service). The design assumes a layer-7 load balancer (API Gateway, Ingress)
