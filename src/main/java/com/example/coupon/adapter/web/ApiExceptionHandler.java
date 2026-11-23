@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -33,8 +34,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	/** Includes the connection pool timeout under overload: shed load instead of queueing forever. */
-	@ExceptionHandler(DataAccessResourceFailureException.class)
-	ResponseEntity<ProblemDetail> handleDatabaseUnavailable(DataAccessResourceFailureException e) {
+	@ExceptionHandler({ DataAccessResourceFailureException.class, CannotCreateTransactionException.class })
+	ResponseEntity<ProblemDetail> handleDatabaseUnavailable(Exception e) {
 		log.warn("Database unavailable or overloaded", e);
 		ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
 				"Service temporarily overloaded, retry later");
