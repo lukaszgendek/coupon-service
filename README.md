@@ -62,8 +62,8 @@ Errors are RFC 9457 problem details with a machine-readable `error` property:
 | 503 | `CLIENT_ADDRESS_NOT_PUBLIC` | the service sees only a private address, usually because a proxy does not set `X-Forwarded-For` |
 | 503 | `SERVICE_OVERLOADED` | no database connection within 2 s (`Retry-After: 1`) |
 
-Try it locally. The client address is taken from `X-Forwarded-For` when the request comes from a private-range proxy.
-Localhost counts as one:
+Try it locally. Requests from your own machine come from `127.0.0.1`, which the service trusts like a proxy. So it reads
+the client address from the `X-Forwarded-For` header. Without that header, you would get `CLIENT_ADDRESS_NOT_PUBLIC`:
 
 ```
 curl -X POST localhost:8080/api/coupons -H 'Content-Type: application/json' -d '{"code":"wiosna","country":"US","maxUses":1}'
