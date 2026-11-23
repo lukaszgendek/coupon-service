@@ -37,7 +37,7 @@ Settings can be overridden with environment variables: `DB_URL`, `DB_USER`, `DB_
 ```
 
 Unit tests mock the database. Integration tests run on a real PostgreSQL started by Testcontainers, so a container
-engine (Docker or Podman with a Docker-compatible socket) is required.
+engine (Docker or Podman) is required.
 
 ## API
 
