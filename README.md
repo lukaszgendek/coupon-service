@@ -102,8 +102,12 @@ autovacuum reclaims it later. Such rows are rare, because the exhausted check (a
 requests that were already past that check when the last slot was taken can leave one, so their number is bounded by
 the number of concurrent requests.
 
-**One use per user.** The primary key of `coupon_usage` is `(coupon_id, user_id)`: no surrogate id, no sequence, one
-index. `ON CONFLICT DO NOTHING` turns a duplicate into a normal "0 rows" result instead of a database error.
+**One use per user.** The primary key of `coupon_usage` is `(coupon_id, user_id)`, so the database itself guarantees
+that a user can use a coupon only once. There is no surrogate id and no sequence, and the one index also serves
+lookups. The insert uses `ON CONFLICT DO NOTHING`: a duplicate is an expected business outcome, so it comes back as
+"0 rows inserted" and maps to `COUPON_ALREADY_USED`, without catching a database exception. Both approaches are
+race-free, because the constraint decides either way. This one is simpler and cheaper, with no exception and no
+`ERROR` line in the PostgreSQL log.
 
 **Fail fast, write nothing.** Before any write the service checks, in order: the coupon exists, it is not exhausted, the
 caller's country matches. Rejected requests (the common case under load) cost one `SELECT` and hold no transaction. An
@@ -138,9 +142,11 @@ implemented: a caller who varies the header over many valid public addresses can
 
 ## Known limitations
 
-- **No authentication or authorisation.** Anyone who can reach the API can create coupons, and `userId` is taken from
-  the request body without verification, so "one use per user" is only as strong as the caller's honesty. In a real
-  deployment the user would come from an authenticated identity, and coupon creation would be restricted.
+- **No authentication or authorisation.** Anyone who can reach the API can create coupons. In a real deployment
+  coupon creation would be restricted.
+- **`userId` is an opaque identifier.** It comes from the request body and is not verified, because authentication is
+  out of scope. The service compares it exactly (`U1` and `u1` are different users). In production it would be the
+  authenticated subject, so one-use-per-user is only as strong as that identity.
 - **Database credentials are hard-coded** in `docker-compose.yml` (and defaulted in `application.properties`) for
   convenience. Outside local use they belong in a secret store or environment.
 - **No data persistence in Docker.** The PostgreSQL container has no volume, so `docker compose down` discards the
