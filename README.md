@@ -151,7 +151,10 @@ plain Java with no Spring imports; the wiring is in `CouponConfig`. This gives t
 - **Cache of answers.** A known country is remembered for 10 minutes. "The provider does not know this address" is
   remembered for 1 minute, so repeated requests for an unknown address do not reach the provider. Technical failures
   are not cached, so the next request tries again.
-- **Single-flight.** Concurrent requests for one address share one lookup, waiting on a future rather than a lock.
+- **Single-flight.** The cache (Caffeine `AsyncCache`) stores, per address, a `CompletableFuture`: "the answer that is
+  being fetched". The first request starts the lookup, and concurrent requests for the same address find that future
+  and wait on it, so they share one provider call. Waiting on a future instead of a lock means no deadlock risk,
+  lookups for different addresses never block each other, and a waiting virtual thread is cheap.
 - **Virtual threads with a hard timeout.** A slow provider cannot hang requests.
 - **Circuit breaker** (Resilience4j). It fails fast while the provider is down.
 
