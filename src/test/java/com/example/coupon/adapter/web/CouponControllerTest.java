@@ -2,7 +2,7 @@ package com.example.coupon.adapter.web;
 
 import java.util.stream.Stream;
 
-import com.example.coupon.application.CouponService;
+import com.example.coupon.application.port.in.CouponUseCases;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
@@ -37,7 +37,7 @@ class CouponControllerTest {
 	MockMvc mvc;
 
 	@MockitoBean
-	CouponService service;
+	CouponUseCases service;
 
 	@Test
 	void createReturns201WithLocationAndNormalisedCode() throws Exception {

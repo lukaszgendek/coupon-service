@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
 import org.junit.jupiter.api.Test;
 

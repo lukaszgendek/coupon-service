@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import com.example.coupon.TestcontainersConfiguration;
-import com.example.coupon.application.CouponRepository;
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.CouponRepository;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;

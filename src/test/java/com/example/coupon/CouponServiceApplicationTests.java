@@ -1,6 +1,6 @@
 package com.example.coupon;
 
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;

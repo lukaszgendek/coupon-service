@@ -23,6 +23,11 @@ class ArchitectureTest {
 			.should().dependOnClassesThat().resideInAnyPackage("..adapter..", "org.springframework..");
 
 	@ArchTest
+	static final ArchRule webTalksToTheApplicationOnlyThroughItsInboundPort = noClasses().that()
+			.resideInAPackage("..adapter.web..")
+			.should().dependOnClassesThat().resideInAnyPackage("..application", "..application.port.out..");
+
+	@ArchTest
 	static final ArchRule adaptersAreIndependent = slices().matching("..adapter.(*)..")
 			.should().notDependOnEachOther();
 

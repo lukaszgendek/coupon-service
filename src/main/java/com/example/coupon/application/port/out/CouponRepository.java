@@ -1,4 +1,4 @@
-package com.example.coupon.application;
+package com.example.coupon.application.port.out;
 
 import java.util.Optional;
 

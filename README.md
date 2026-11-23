@@ -126,13 +126,19 @@ shortcut: whether a use is granted is decided by the atomic `INSERT` and `UPDATE
 that way under a unique constraint.
 
 **Hexagonal architecture (ports and adapters).** A port is an interface owned by the business code (`domain`,
-`application`). It says what the application needs, not how it is done: `CouponRepository` ("store and load coupons"),
-`GeoLocationPort` (`Optional<CountryCode> countryOf(String ip)`). `CouponService` knows only these interfaces, nothing
-about HTTP, SQL, JSON, caching or a geolocation provider. Everything technical is an adapter outside the core:
-`adapter.web` (REST), `adapter.persistence` (PostgreSQL through JDBC) and `adapter.geo` (`ResilientGeoLocation` wrapping
-`IpWhoIsLookup`). Dependencies point inwards only: an adapter depends on a port, never the other way, and
-`ArchitectureTest` fails the build if one does. `domain` and `application` are plain Java with no Spring imports; the
-wiring is in `CouponConfig`. This gives three things:
+`application`). It says what the application offers or needs, not how it is done. Ports live in `application.port`:
+
+1. **Inbound** (`port.in`), what the outside can ask of the application: `CouponUseCases` (create, get and use a
+   coupon), implemented by `CouponService` and called by `adapter.web` (REST).
+2. **Outbound** (`port.out`), what the application needs from the outside, implemented by adapters:
+   - `CouponRepository` ("store and load coupons") by `adapter.persistence` (PostgreSQL through JDBC);
+   - `GeoLocationPort` (`Optional<CountryCode> countryOf(String ip)`) by `adapter.geo` (`ResilientGeoLocation` wrapping
+     `IpWhoIsLookup`).
+
+`CouponService` knows only the outbound interfaces, nothing about HTTP, SQL, JSON, caching or a geolocation provider.
+Dependencies point inwards only: an adapter depends on a port, never the other way, and the web adapter sees only
+`CouponUseCases`. `ArchitectureTest` fails the build if one of these rules is broken. `domain` and `application` are
+plain Java with no Spring imports; the wiring is in `CouponConfig`. This gives three things:
 
 - **Replaceable technology.** Swap the provider (another API, a local MMDB file) or the database without touching the
   business logic.

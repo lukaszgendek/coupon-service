@@ -3,7 +3,7 @@ package com.example.coupon.adapter.web;
 import java.net.URI;
 import java.time.Instant;
 
-import com.example.coupon.application.CouponService;
+import com.example.coupon.application.port.in.CouponUseCases;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;
@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/coupons")
 class CouponController {
 
-	private final CouponService service;
+	private final CouponUseCases service;
 
-	CouponController(CouponService service) {
+	CouponController(CouponUseCases service) {
 		this.service = service;
 	}
 

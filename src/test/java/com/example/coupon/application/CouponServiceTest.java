@@ -3,6 +3,8 @@ package com.example.coupon.application;
 import java.time.Instant;
 import java.util.Optional;
 
+import com.example.coupon.application.port.out.CouponRepository;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;

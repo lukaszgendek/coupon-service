@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.Optional;
 
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.CouponException;
 import com.github.benmanes.caffeine.cache.AsyncCache;

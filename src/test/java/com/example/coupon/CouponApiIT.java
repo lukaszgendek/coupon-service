@@ -2,7 +2,7 @@ package com.example.coupon;
 
 import java.util.Optional;
 
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.GeoLocationPort;
 import com.example.coupon.domain.CountryCode;
 import org.junit.jupiter.api.Test;
 

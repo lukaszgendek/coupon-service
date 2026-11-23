@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-import com.example.coupon.application.CouponRepository;
+import com.example.coupon.application.port.out.CouponRepository;
 import com.example.coupon.domain.CountryCode;
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponCode;

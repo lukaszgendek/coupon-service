@@ -1,8 +1,8 @@
 package com.example.coupon;
 
-import com.example.coupon.application.CouponRepository;
 import com.example.coupon.application.CouponService;
-import com.example.coupon.application.GeoLocationPort;
+import com.example.coupon.application.port.out.CouponRepository;
+import com.example.coupon.application.port.out.GeoLocationPort;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
