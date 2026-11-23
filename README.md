@@ -92,9 +92,11 @@ arrive at the same moment:
 The lock is held by the database, not by the Java process, so it does not matter whether the two requests reach the
 same instance or two different ones. There are no application-level locks, so the service scales horizontally. The
 price is that all uses of one hot coupon queue on one row, so its throughput is bounded by the duration of a single
-short transaction; different coupons do not block each other. A
-`CHECK (used_count <= max_uses)` is the last line of defence. If the last slot is lost in a race, the transaction rolls
-back and the usage row disappears.
+short transaction; different coupons do not block each other.
+
+A `CHECK (used_count <= max_uses)` is the last line of defence: even a bug or a manual SQL statement cannot push the
+counter above the limit. When a request loses the race for the last slot, its `UPDATE` changes 0 rows, the service
+answers "exhausted", and the transaction rolls back, so the usage row inserted just before it disappears too.
 
 **One use per user.** The primary key of `coupon_usage` is `(coupon_id, user_id)`: no surrogate id, no sequence, one
 index. `ON CONFLICT DO NOTHING` turns a duplicate into a normal "0 rows" result instead of a database error.
