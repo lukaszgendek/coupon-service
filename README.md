@@ -108,8 +108,10 @@ platform threads. The connection pool (20, 2 s timeout) is then the bounded reso
 answers 503 quickly instead of queueing without limit.
 
 **Client address.** `server.forward-headers-strategy=native` makes Tomcat trust `X-Forwarded-For` only from private
-address ranges (the proxy in front of the service). Behind a different proxy setup, configure the trusted proxies, or
-callers could spoof their country. The proxy must overwrite the header, not append to it. Rate limiting is not
+address ranges (the proxy in front of the service). The design assumes a layer-7 load balancer (API Gateway, Ingress)
+that overwrites the header with the original client address, and not appends to it. Layer-4 hops (Docker port mapping,
+NodePort, ClusterIP, NLB) do not touch HTTP headers and may replace the source address, so the original address is lost;
+without an overwriting proxy callers could spoof their country. Rate limiting is not
 implemented: a caller who varies the header over many valid public addresses can still use up the provider's quota.
 
 ## Known limitations
