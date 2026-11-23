@@ -80,7 +80,19 @@ UPDATE coupon SET used_count = used_count + 1 WHERE id = ? AND used_count < max_
 ```
 
 The `UPDATE` takes a row lock, so concurrent requests are serialised in the database and the limit cannot be exceeded, no
-matter how many application instances run. There are no application-level locks, so the service scales horizontally. A
+matter how many application instances run. For a coupon with `max_uses = 5` and `used_count = 4`, when two requests
+arrive at the same moment:
+
+1. Request A runs the `UPDATE`; Postgres locks the coupon's row until A's transaction ends.
+2. Request B runs the same `UPDATE` and waits for that lock.
+3. A commits, and `used_count` becomes 5.
+4. B's `UPDATE` continues and re-checks the condition against the new value: `5 < 5` is false, so it updates 0 rows,
+   which the service reports as "exhausted".
+
+The lock is held by the database, not by the Java process, so it does not matter whether the two requests reach the
+same instance or two different ones. There are no application-level locks, so the service scales horizontally. The
+price is that all uses of one hot coupon queue on one row, so its throughput is bounded by the duration of a single
+short transaction; different coupons do not block each other. A
 `CHECK (used_count <= max_uses)` is the last line of defence. If the last slot is lost in a race, the transaction rolls
 back and the usage row disappears.
 
